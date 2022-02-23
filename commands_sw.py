@@ -1,6 +1,6 @@
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, Filters,ConversationHandler
-from logging_sw import*
+from logging_sw import *
 from random import randint
 
 
@@ -11,16 +11,16 @@ from random import randint
   
 
 def hello_command(update: Update, context: CallbackContext):
-    # log_fiv(update, context)
+    # log_sw(update, context)
     update.message.reply_text(f'Hello {update.effective_user.first_name}\n''I am sweeting sweet bot, will we play \n/yes\n/no\n')
   
 
 def exit_command(update: Update, context: CallbackContext):
-    # log_fiv(update, context)
+    # log_sw(update, context)
     update.message.reply_text(f'Sorry,Bay')
 
 def game_command(update: Update, context: CallbackContext):
-    # log_fiv(update, context)
+   # log_sw(update, context)
     update.message.reply_text(f'Ok, \n/newgame\n/resume\n')
 
 
@@ -34,28 +34,26 @@ def play1_command(update: Update, context: CallbackContext):
     global sweets
     global max_sweets
     global sweets_count
-    global res_sweets
     sweets=100
     max_sweets=28
     sweets_count=int()
     res_sweets=int()
     
     
-    while res_sweets<=0:
+    while sweets>=0:
         
         update.message.reply_text(f'How many sweets will you take')
         msg=(update.message.text)
         sweets_count=msg
         sweets-=sweets_count
         update.message.reply_text(f'There are some sweets left {sweets}')
-        player=2        
+        player=(play2_command(update, context))       
         
 def play2_command(update: Update, context: CallbackContext):
     sweets=100
     max_sweets=28
-    player=2
     sweets_count=int()
-    while res_sweets<=0:     
+    while sweets>=0:     
         
         sweets_count = randint(1, max_sweets)
         update.message.reply_text(f'Ok,i took {sweets_count}')
