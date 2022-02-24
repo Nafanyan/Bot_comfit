@@ -3,86 +3,73 @@ from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandle
 from logging_sw import *
 from random import randint
 
-
-# def mod_msg(Update, context: CallbackContext):
-#     chat = update.effective_chat
-#     text=Update.message.text
-#     return text
-  
+from enum import Enum
 
 def hello_command(update: Update, context: CallbackContext):
-    # log_sw(update, context)
-    update.message.reply_text(f'Hello {update.effective_user.first_name}\n''I am sweeting sweet bot, will we play \n/yes\n/no\n')
-  
-
-def exit_command(update: Update, context: CallbackContext):
-    # log_sw(update, context)
-    update.message.reply_text(f'Sorry,Bay')
-
-def game_command(update: Update, context: CallbackContext):
-   # log_sw(update, context)
-    update.message.reply_text(f'Ok, \n/newgame\n/resume\n')
+    log_sw(update, context)
+    update.message.reply_text(f'Hello {update.effective_user.first_name} press /start\n')
 
 
-def set_play(update: Update, context: CallbackContext):
-    update.message.reply_text(f'Who will start first\n if you press \n/1,\n if me press\n/2\n ')
-    msg=update.message.text
-    player=(msg)
-    update.message.reply_text(f'We have now {sweets} sweets\n, you can take the maximum {max_sweets}')    
 
-def play1_command(update: Update, context: CallbackContext):
+global sweets
+sweets=100
+max_sweets=28
+
+class State(Enum):
+    WAIT_COMMAND_USER1 = 1
+    NONE = 3
+
+global state 
+state = State.NONE
+
+
+def process_input_man(taken_sweets):
     global sweets
     global max_sweets
-    global sweets_count
-    sweets=100
-    max_sweets=28
-    sweets_count=int()
-    res_sweets=int()
-    
-    
-    while sweets>=0:
-        
-        update.message.reply_text(f'How many sweets will you take')
-        msg=(update.message.text)
-        sweets_count=msg
-        sweets-=sweets_count
-        update.message.reply_text(f'There are some sweets left {sweets}')
-        player=(play2_command(update, context))       
-        
-def play2_command(update: Update, context: CallbackContext):
-    sweets=100
-    max_sweets=28
-    sweets_count=int()
-    while sweets>=0:     
-        
-        sweets_count = randint(1, max_sweets)
-        update.message.reply_text(f'Ok,i took {sweets_count}')
-        sweets-=sweets_count
-        update.message.reply_text(f'There are some sweets left {sweets}')
-        player=(play1_command(update, context))
+    if taken_sweets > max_sweets:
+        return False
+    sweets -= taken_sweets
+    return True
+
+def bot_action():
+    global sweets
+    global max_sweets
+    bot_sweets = randint(1, max_sweets)
+    sweets -= bot_sweets
+    return bot_sweets
+
+def input_handler(update: Update, context: CallbackContext):
+    global sweets
+    global max_sweets
+    global state
+    if state == State.WAIT_COMMAND_USER1:
+        if not process_input_man(int(update.message.text)):
+            update.message.reply_text(f"Too many sweets to take!")
+            return
+        if sweets <= 0:
+            update.message.reply_text(f"You lost!")
+            state = State.NONE
+            sweets=100
+        else:
+            play_bot(update=update, context=context)
+    elif state == State.NONE:
+        update.message.reply_text(f"Enter you will start the game: man -/m\n or bot- /b\n")
 
 
+def play_man(update: Update, context: CallbackContext):
+    update.message.reply_text(f'We have now {sweets}\n How many sweets will you take?')
+    global state
+    state = State.WAIT_COMMAND_USER1
 
+def play_bot(update: Update, context: CallbackContext):
+    global sweets
+    global state
+    bot_sweets = bot_action()
+    if sweets <= 0:
+        update.message.reply_text(f'It took {bot_sweets} Bot lost!!')
+        state =State.NONE
+        sweets = 100
+    else:
+        update.message.reply_text(f'Ok, we have now {sweets},\n i took {bot_sweets}')        
+        play_man(update, context)
 
-
-# def get_sweets(player):
-#     while True:
-#         if player == 1:
-#             sweets_count = int(input(f'сколько взять конфет {player}:'))
-#         else:
-#             sweets_count = randint(1, sweets)
-#             print(f' бот взял: {sweets_count}')
-#         if sweets_count <= max_sweets:
-#             return sweets_count
-
-
-# while True:
-#     print(f'сейчас конфет {sweets}')
-#     sweets -= get_sweets(player)
-#     if sweets <= 0:
-#         if player==1:
-#             print(f'Победил игрок{player}')
-#             break
-#         elif player==2:
-#             print('Победил бот')
-#     player = 2 if player == 1 else 1
