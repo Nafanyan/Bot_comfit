@@ -7,7 +7,7 @@ from enum import Enum
 
 def hello_command(update: Update, context: CallbackContext):
     log_sw(update, context)
-    update.message.reply_text(f'Hello {update.effective_user.first_name} press /start\n')
+    update.message.reply_text(f'Привет  {update.effective_user.first_name} для начала нажмите /start\n')
 
 
 
@@ -26,17 +26,23 @@ state = State.NONE
 def process_input_man(taken_sweets):
     global sweets
     global max_sweets
-    if taken_sweets > max_sweets:
+    if taken_sweets > max_sweets or taken_sweets> sweets:
         return False
     sweets -= taken_sweets
     return True
+   
 
 def bot_action():
     global sweets
     global max_sweets
-    bot_sweets = randint(1, max_sweets)
-    sweets -= bot_sweets
-    return bot_sweets
+    if sweets>max_sweets:
+        bot_sweets = randint(1, max_sweets)
+        sweets -= bot_sweets
+        return bot_sweets
+    else:
+        bot_sweets = randint(1, sweets)
+        sweets -= bot_sweets
+        return bot_sweets
 
 def input_handler(update: Update, context: CallbackContext):
     global sweets
@@ -44,20 +50,20 @@ def input_handler(update: Update, context: CallbackContext):
     global state
     if state == State.WAIT_COMMAND_USER1:
         if not process_input_man(int(update.message.text)):
-            update.message.reply_text(f"Too many sweets to take!")
+            update.message.reply_text(f'Ты не можешь взять такое количество конфет')
             return
         if sweets <= 0:
-            update.message.reply_text(f"You lost!")
+            update.message.reply_text(f'Увы, ты проиграл')
             state = State.NONE
             sweets=100
         else:
             play_bot(update=update, context=context)
     elif state == State.NONE:
-        update.message.reply_text(f"Enter you will start the game: man -/m\n or bot- /b\n")
+        update.message.reply_text(f'Правила игры:\n 1.У нас есть 100 конфет\n 2. Максимально можно взять {max_sweets}\n 3. Кто последний взял тот проиграл \n и последнее кто первый начнет игру, если человек нажмите  /m\n если бот нажмите  /b\n')
 
 
 def play_man(update: Update, context: CallbackContext):
-    update.message.reply_text(f'We have now {sweets}\n How many sweets will you take?')
+    update.message.reply_text(f'Сейчас {sweets}\n Сколько конфет возьмешь?')
     global state
     state = State.WAIT_COMMAND_USER1
 
@@ -66,10 +72,10 @@ def play_bot(update: Update, context: CallbackContext):
     global state
     bot_sweets = bot_action()
     if sweets <= 0:
-        update.message.reply_text(f'It took {bot_sweets} Bot lost!!')
+        update.message.reply_text(f'Я взял {bot_sweets}, Я проиграл!')
         state =State.NONE
         sweets = 100
     else:
-        update.message.reply_text(f'Ok, we have now {sweets},\n i took {bot_sweets}')        
+        update.message.reply_text(f'Хорошо, я взял  {bot_sweets}')        
         play_man(update, context)
 
