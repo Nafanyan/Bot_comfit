@@ -6,16 +6,6 @@ from storage_users import*
 import work_status_users as wsu
 from enum import Enum
 
-def hello_command(update: Update, context: CallbackContext):
-    # Сделал добавление пользователя в БД
-    id = str(update.effective_user.id)
-    user_base = read_storage()
-    if (not (id in user_base)):
-        add_new_user(id)
-        wsu.new_user_status(id)
-
-    log_sw(update, context)
-    update.message.reply_text(f'Привет  {update.effective_user.first_name} для начала нажмите /start\n')
 
 
 
@@ -61,6 +51,7 @@ def input_handler(update: Update, context: CallbackContext):
         if not process_input_man(int(update.message.text)):
             update.message.reply_text(f'Ты не можешь взять такое количество конфет')
             return
+
         if sweets <= 0:
             update.message.reply_text(f'Увы, я проиграл')
             state = State.NONE
@@ -71,19 +62,29 @@ def input_handler(update: Update, context: CallbackContext):
             wsu.change_status(status, id)
         else:
             play_bot(update=update, context=context)
-    elif state == State.NONE:
 
-        if (wsu.check_status('sweet',id)):
-            update.message.reply_text(
-                f'Правила игры:\n 1.У нас есть 100 конфет\n 2. Максимально можно взять {max_sweets}\n 3. Кто последний взял тот проиграл \n и последнее кто первый начнет игру, если человек нажмите  /m\n если бот нажмите  /b\n')
+def start(update: Update, context: CallbackContext):
+    id = str(update.effective_user.id)
+    user_base = read_storage()
+    if (not (id in user_base)):
+        add_new_user(id)
+        wsu.new_user_status(id)
 
-        else:
-            status = wsu.read_status(id)
-            sweets = int(status['sweet'][0])
-            update.message.reply_text(f'У тебя есть неоконченная игра последнее количество конфет {sweets} \n'
-                                      f'Кто продолжит игру, если человек нажмите  /m\n если бот нажмите  /b\n')
+    log_sw(update, context)
+    update.message.reply_text(f'Привет  {update.effective_user.first_name} для начала нажмите /start\n')
+    global sweets
+    if (wsu.check_status('sweet', id)):
+        status = wsu.read_status(id)
+        status['sweet'][0] = sweets
+        wsu.change_status(status, id)
+        update.message.reply_text(
+            f'Правила игры:\n 1.У нас есть 100 конфет\n 2. Максимально можно взять {max_sweets}\n 3. Кто последний взял тот проиграл \n и последнее кто первый начнет игру, если человек нажмите  /m\n если бот нажмите  /b\n')
 
-
+    else:
+        status = wsu.read_status(id)
+        sweets = int(status['sweet'][0])
+        update.message.reply_text(f'У тебя есть неоконченная игра последнее количество конфет {sweets} \n'
+                                  f'Кто продолжит игру, если человек нажмите  /m\n если бот нажмите  /b\n')
 
 
 def play_man(update: Update, context: CallbackContext):
