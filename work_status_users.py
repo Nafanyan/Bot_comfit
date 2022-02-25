@@ -5,7 +5,7 @@ source: dict = {}
 # Считывание статусов пользователя
 
 def read_status(id):
-    file_status = open(f'C:/Users/01112/PycharmProjects/my_firts_tb_bot/status_users/{id}.txt','r')
+    file_status = open(f'status_users/{id}.txt','r')
     elements_status = []
     for info in file_status:
         info_status = info.split('\n')
@@ -20,7 +20,7 @@ def read_status(id):
 # Изминения имеющегося статуса
 # Например во время хода игры
 def change_status(new_source, id):
-    file_status = open(f'C:/Users/01112/PycharmProjects/my_firts_tb_bot/status_users/{id}.txt','w')
+    file_status = open(f'status_users/{id}.txt','w')
     for i in new_source:
         file_status.writelines(f'{i} ')
         for el_st in new_source[i]:
@@ -30,7 +30,7 @@ def change_status(new_source, id):
 # Проверка статуса прошлых действий на незавершенность
 def check_status(action,id):
     status = read_status(id)
-    if (status[action][0] == '0'): return True
+    if (status[action][0] == '100'): return True
     else: return False
 
 # Добавить нулевые статусы для всех состояний, в случае прихода нового пользователя
@@ -41,6 +41,8 @@ def new_user_status(id):
     for i in range(len(statuses)):
         new_dict[statuses[i].replace('/','')] = '0'
     change_status(new_dict,id)
+
+
 
 
 
