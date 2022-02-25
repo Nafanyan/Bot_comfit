@@ -8,6 +8,7 @@ from enum import Enum
 
 def hello_command(update: Update, context: CallbackContext):
     # Сделал добавление пользователя в БД
+    global id
     id = str(update.effective_user.id)
     user_base = read_storage()
     if (not (id in user_base)):
@@ -46,14 +47,23 @@ def bot_action():
     if sweets>max_sweets:
         bot_sweets = randint(1, max_sweets)
         sweets -= bot_sweets
+        # сделал обновление статуса о текущем состоянии конфет
+        status = wsu.read_status(id)
+        status['sweet'] = bot_sweets
+        wsu.change_status(status,id)
+
         return bot_sweets
     else:
         bot_sweets = randint(1, sweets)
         sweets -= bot_sweets
+        # сделал обновление статуса о текущем состоянии конфет
+        status = wsu.read_status(id)
+        status['sweet'] = bot_sweets
+        wsu.change_status(status,id)
+
         return bot_sweets
 
 def input_handler(update: Update, context: CallbackContext):
-    id = str(update.effective_user.id)
     global sweets
     global max_sweets
     global state
@@ -62,52 +72,38 @@ def input_handler(update: Update, context: CallbackContext):
             update.message.reply_text(f'Ты не можешь взять такое количество конфет')
             return
         if sweets <= 0:
-            update.message.reply_text(f'Увы, я проиграл')
+            update.message.reply_text(f'Увы, ты проиграл')
             state = State.NONE
             # сделал обновление статуса о текущем состоянии конфет
-            sweets=100
             status = wsu.read_status(id)
-            status['sweet'][0] = sweets
+            status['sweet'] = 0
             wsu.change_status(status, id)
+
+            sweets=100
         else:
             play_bot(update=update, context=context)
     elif state == State.NONE:
-
-        if (wsu.check_status('sweet',id)):
-            update.message.reply_text(
-                f'Правила игры:\n 1.У нас есть 100 конфет\n 2. Максимально можно взять {max_sweets}\n 3. Кто последний взял тот проиграл \n и последнее кто первый начнет игру, если человек нажмите  /m\n если бот нажмите  /b\n')
-
-        else:
-            status = wsu.read_status(id)
-            sweets = int(status['sweet'][0])
-            update.message.reply_text(f'У тебя есть неоконченная игра последнее количество конфет {sweets} \n'
-                                      f'Кто продолжит игру, если человек нажмите  /m\n если бот нажмите  /b\n')
-
-
+        update.message.reply_text(f'Правила игры:\n 1.У нас есть 100 конфет\n 2. Максимально можно взять {max_sweets}\n 3. Кто последний взял тот проиграл \n и последнее кто первый начнет игру, если человек нажмите  /m\n если бот нажмите  /b\n')
 
 
 def play_man(update: Update, context: CallbackContext):
     update.message.reply_text(f'Сейчас {sweets}\n Сколько конфет возьмешь?')
-    id = str(update.effective_user.id)
-    status = wsu.read_status(id)
-    status['sweet'][0] = sweets
-    wsu.change_status(status, id)
     global state
     state = State.WAIT_COMMAND_USER1
 
 def play_bot(update: Update, context: CallbackContext):
-    id = str(update.effective_user.id)
     global sweets
     global state
     bot_sweets = bot_action()
     if sweets <= 0:
-        update.message.reply_text(f'Я взял {bot_sweets}, Ты проиграл!')
+        update.message.reply_text(f'Я взял {bot_sweets}, Я проиграл!')
         # сделал обновление статуса о текущем состоянии конфет
+        status = wsu.read_status(id)
+        status['sweet'] = 0
+        wsu.change_status(status, id)
+
         state =State.NONE
         sweets = 100
-        status = wsu.read_status(id)
-        status['sweet'][0] = sweets
-        wsu.change_status(status, id)
     else:
         update.message.reply_text(f'Хорошо, я взял  {bot_sweets}')        
         play_man(update, context)
