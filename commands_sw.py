@@ -2,10 +2,19 @@ from telegram import Update
 from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, Filters,ConversationHandler
 from logging_sw import *
 from random import randint
-
+from storage_users import*
+import work_status_users as wsu
 from enum import Enum
 
 def hello_command(update: Update, context: CallbackContext):
+    # Сделал добавление пользователя в БД
+    global id
+    id = str(update.effective_user.id)
+    user_base = read_storage()
+    if (not (id in user_base)):
+        add_new_user(id)
+        wsu.new_user_status(id)
+
     log_sw(update, context)
     update.message.reply_text(f'Привет  {update.effective_user.first_name} для начала нажмите /start\n')
 
@@ -38,10 +47,20 @@ def bot_action():
     if sweets>max_sweets:
         bot_sweets = randint(1, max_sweets)
         sweets -= bot_sweets
+        # сделал обновление статуса о текущем состоянии конфет
+        status = wsu.read_status(id)
+        status['sweet'] = bot_sweets
+        wsu.change_status(status,id)
+
         return bot_sweets
     else:
         bot_sweets = randint(1, sweets)
         sweets -= bot_sweets
+        # сделал обновление статуса о текущем состоянии конфет
+        status = wsu.read_status(id)
+        status['sweet'] = bot_sweets
+        wsu.change_status(status,id)
+
         return bot_sweets
 
 def input_handler(update: Update, context: CallbackContext):
@@ -55,6 +74,11 @@ def input_handler(update: Update, context: CallbackContext):
         if sweets <= 0:
             update.message.reply_text(f'Увы, ты проиграл')
             state = State.NONE
+            # сделал обновление статуса о текущем состоянии конфет
+            status = wsu.read_status(id)
+            status['sweet'] = 0
+            wsu.change_status(status, id)
+
             sweets=100
         else:
             play_bot(update=update, context=context)
@@ -73,6 +97,11 @@ def play_bot(update: Update, context: CallbackContext):
     bot_sweets = bot_action()
     if sweets <= 0:
         update.message.reply_text(f'Я взял {bot_sweets}, Я проиграл!')
+        # сделал обновление статуса о текущем состоянии конфет
+        status = wsu.read_status(id)
+        status['sweet'] = 0
+        wsu.change_status(status, id)
+
         state =State.NONE
         sweets = 100
     else:
