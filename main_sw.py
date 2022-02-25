@@ -6,9 +6,9 @@ from commands_sw import *
 
 updater = Updater('5123962439:AAEtoNbq4uXEEiaxKuDThff6prH7gnQYpoA')
 
+updater.dispatcher.add_handler(CommandHandler('hello', hello_command))
 updater.dispatcher.add_handler(CommandHandler('m', play_man))
 updater.dispatcher.add_handler(CommandHandler('b', play_bot))
-updater.dispatcher.add_handler(CommandHandler('start', start))
 updater.dispatcher.add_handler(MessageHandler(Filters.text, input_handler))
 
 
