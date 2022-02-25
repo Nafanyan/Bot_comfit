@@ -2,7 +2,7 @@
 
 
 users_rights: dict = {}
-users_actions = ['/sweet','/help','/hello']
+users_actions = ['/sweet','/m','/b']
 
 # Считать данные всех пользователей с хранилища
 def read_storage():
