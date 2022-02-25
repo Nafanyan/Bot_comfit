@@ -16,7 +16,7 @@ def read_storage():
     info.close()
     return users_rights
 
-# Добавить нового пользователя в хранилище
+# Добавить нового пользователя в наше хранилище
 def add_new_user(id):
     info = open('storage_users.txt','a')
     info.writelines(f'\n{id} ')
