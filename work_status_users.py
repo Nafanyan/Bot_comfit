@@ -30,7 +30,7 @@ def change_status(new_source, id):
 # Проверка статуса прошлых действий на незавершенность
 def check_status(action,id):
     status = read_status(id)
-    if (status[action][0] == '100'): return True
+    if (status[action][0] == '100' or status[action][0] == '0'): return True
     else: return False
 
 # Добавить нулевые статусы для всех состояний, в случае прихода нового пользователя
