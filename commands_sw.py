@@ -6,7 +6,6 @@ from storage_users import*
 import work_status_users as wsu
 from enum import Enum
 
-<<<<<<< HEAD
 def hello_command(update: Update, context: CallbackContext):
     # Сделал добавление пользователя в БД
     global id
@@ -18,8 +17,6 @@ def hello_command(update: Update, context: CallbackContext):
 
     log_sw(update, context)
     update.message.reply_text(f'Привет  {update.effective_user.first_name} для начала нажмите /start\n')
-=======
->>>>>>> 7989091f6b5370194966a37806e0a08f60f8d603
 
 
 
@@ -86,34 +83,8 @@ def input_handler(update: Update, context: CallbackContext):
             sweets=100
         else:
             play_bot(update=update, context=context)
-<<<<<<< HEAD
     elif state == State.NONE:
         update.message.reply_text(f'Правила игры:\n 1.У нас есть 100 конфет\n 2. Максимально можно взять {max_sweets}\n 3. Кто последний взял тот проиграл \n и последнее кто первый начнет игру, если человек нажмите  /m\n если бот нажмите  /b\n')
-=======
-
-def start(update: Update, context: CallbackContext):
-    id = str(update.effective_user.id)
-    user_base = read_storage()
-    if (not (id in user_base)):
-        add_new_user(id)
-        wsu.new_user_status(id)
-
-    log_sw(update, context)
-    update.message.reply_text(f'Привет  {update.effective_user.first_name} для начала нажмите /start\n')
-    global sweets
-    if (wsu.check_status('sweet', id)):
-        status = wsu.read_status(id)
-        status['sweet'][0] = sweets
-        wsu.change_status(status, id)
-        update.message.reply_text(
-            f'Правила игры:\n 1.У нас есть 100 конфет\n 2. Максимально можно взять {max_sweets}\n 3. Кто последний взял тот проиграл \n и последнее кто первый начнет игру, если человек нажмите  /m\n если бот нажмите  /b\n')
-
-    else:
-        status = wsu.read_status(id)
-        sweets = int(status['sweet'][0])
-        update.message.reply_text(f'У тебя есть неоконченная игра последнее количество конфет {sweets} \n'
-                                  f'Кто продолжит игру, если человек нажмите  /m\n если бот нажмите  /b\n')
->>>>>>> 7989091f6b5370194966a37806e0a08f60f8d603
 
 
 def play_man(update: Update, context: CallbackContext):
